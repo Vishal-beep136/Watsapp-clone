@@ -64,7 +64,7 @@ public class ChatActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
 
         dialog = new ProgressDialog(this);
-        dialog.setMessage("Uploading image...");
+        dialog.setMessage("Sending image...");
         dialog.setCancelable(false);
 
         messages = new ArrayList<>();
