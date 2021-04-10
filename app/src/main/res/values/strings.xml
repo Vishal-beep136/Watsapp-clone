@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Gossip</string>
+    <string name="verify_phone">Verify Your Phone Number</string>
+    <string name="verify_otp">Verify +918092740294</string>
+    <string name="zoker_send">Gossip will send an SMS message to verify your phone number</string>
+    <string name="zoker_otp">Enter the OTP to verify your phone number</string>
+    <string name="phone_text">Enter your phone number</string>
+    <string name="button_text">Continue</string>
+    <string name="chat_blank">Tap To Chat</string>
+</resources>
