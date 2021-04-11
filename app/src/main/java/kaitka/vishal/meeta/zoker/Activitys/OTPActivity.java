@@ -30,6 +30,7 @@ public class OTPActivity extends AppCompatActivity {
     FirebaseAuth auth;
 
     String verificationId;
+
     ProgressDialog dialog;
 
     @Override
@@ -37,20 +38,25 @@ public class OTPActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityOTPBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        getSupportActionBar().hide();
+
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Sending OTP...");
+        dialog.setCancelable(false);
+        dialog.show();
 
         auth = FirebaseAuth.getInstance();
 
-        dialog = new ProgressDialog(this);
-        dialog.setTitle("Sending OTP please wait...");
-        dialog.setCancelable(false);
-        dialog.show();
+        getSupportActionBar().hide();
+
+
+
         String phoneNumber = getIntent().getStringExtra("phoneNumber");
+
         binding.phoneLbl.setText("Verify " + phoneNumber);
 
         PhoneAuthOptions options = PhoneAuthOptions.newBuilder(auth)
                 .setPhoneNumber(phoneNumber)
-                .setTimeout(2l, TimeUnit.MINUTES)
+                .setTimeout(60L, TimeUnit.SECONDS)
                 .setActivity(OTPActivity.this)
                 .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
@@ -67,11 +73,11 @@ public class OTPActivity extends AppCompatActivity {
                     public void onCodeSent(@NonNull String verifyId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
                         super.onCodeSent(verifyId, forceResendingToken);
                         dialog.dismiss();
-                        InputMethodManager imm = (InputMethodManager)  getSystemService(Context.INPUT_METHOD_SERVICE);
+                        verificationId = verifyId;
+
+                        InputMethodManager imm = (InputMethodManager)   getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                         binding.otpView.requestFocus();
-
-                        verificationId = verifyId;
                     }
                 }).build();
 
@@ -85,12 +91,12 @@ public class OTPActivity extends AppCompatActivity {
                 auth.signInWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()){
-                            startActivity(new Intent(OTPActivity.this, SetupProfileActivity.class));
+                        if(task.isSuccessful()) {
+                            Intent intent = new Intent(OTPActivity.this, SetupProfileActivity.class);
+                            startActivity(intent);
                             finishAffinity();
-                        }
-                        else {
-                            Toast.makeText(OTPActivity.this, "failed", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(OTPActivity.this, "Failed.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

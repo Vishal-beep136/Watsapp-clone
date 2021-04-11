@@ -14,21 +14,25 @@ public class PhoneNumberActivity extends AppCompatActivity {
 
     ActivityPhoneNumberBinding binding;
     FirebaseAuth auth;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityPhoneNumberBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        getSupportActionBar().hide();
-        binding.nameBox.requestFocus();
 
         auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() != null){
+
+        if(auth.getCurrentUser() != null) {
             Intent intent = new Intent(PhoneNumberActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
 
+        getSupportActionBar().hide();
+
+        binding.nameBox.requestFocus();
 
         binding.continueBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -38,5 +42,6 @@ public class PhoneNumberActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
     }
 }

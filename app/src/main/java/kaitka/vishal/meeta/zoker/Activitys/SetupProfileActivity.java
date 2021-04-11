@@ -19,6 +19,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.Date;
+import java.util.HashMap;
+
 import kaitka.vishal.meeta.zoker.Modells.User;
 import kaitka.vishal.meeta.zoker.databinding.ActivitySetupProfileBinding;
 
@@ -28,7 +31,6 @@ public class SetupProfileActivity extends AppCompatActivity {
     FirebaseAuth auth;
     FirebaseDatabase database;
     FirebaseStorage storage;
-
     Uri selectedImage;
     ProgressDialog dialog;
 
@@ -38,15 +40,15 @@ public class SetupProfileActivity extends AppCompatActivity {
         binding = ActivitySetupProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        getSupportActionBar().hide();
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Updating profile...");
+        dialog.setCancelable(false);
 
-        auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
-        dialog = new ProgressDialog(this);
-        dialog.setTitle("Gossip!");
-        dialog.setMessage("we are updating your changes!");
-        dialog.setCancelable(false);
+        auth = FirebaseAuth.getInstance();
+
+        getSupportActionBar().hide();
 
         binding.profileAva.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,9 +56,7 @@ public class SetupProfileActivity extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
-                startActivityForResult(intent, 33);
-
-
+                startActivityForResult(intent, 45);
             }
         });
 
@@ -64,22 +64,24 @@ public class SetupProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String name = binding.nameBox.getText().toString();
-                if (name.isEmpty()){
-                    binding.nameBox.setError("Please Enter Name");
-                    binding.nameBox.requestFocus();
+
+                if (name.isEmpty()) {
+                    binding.nameBox.setError("Please type a name");
                     return;
                 }
+
                 dialog.show();
-                if (selectedImage != null){
+                if (selectedImage != null) {
                     StorageReference reference = storage.getReference().child("Profiles").child(auth.getUid());
                     reference.putFile(selectedImage).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isSuccessful()){
+                            if (task.isSuccessful()) {
                                 reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
                                         String imageUrl = uri.toString();
+
                                         String uid = auth.getUid();
                                         String phone = auth.getCurrentUser().getPhoneNumber();
                                         String name = binding.nameBox.getText().toString();
@@ -94,25 +96,21 @@ public class SetupProfileActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
                                                         dialog.dismiss();
-                                                      Intent intent = new Intent(SetupProfileActivity.this, MainActivity.class);
-                                                      startActivity(intent);
-                                                      finish();
-
-
+                                                        Intent intent = new Intent(SetupProfileActivity.this, MainActivity.class);
+                                                        startActivity(intent);
+                                                        finish();
                                                     }
                                                 });
-
                                     }
                                 });
                             }
                         }
                     });
-                }else {
+                } else {
                     String uid = auth.getUid();
                     String phone = auth.getCurrentUser().getPhoneNumber();
 
-
-                    User user = new User(uid, name, phone, "no Image Uploaded");
+                    User user = new User(uid, name, phone, "No Image");
 
                     database.getReference()
                             .child("users")
@@ -125,23 +123,49 @@ public class SetupProfileActivity extends AppCompatActivity {
                                     Intent intent = new Intent(SetupProfileActivity.this, MainActivity.class);
                                     startActivity(intent);
                                     finish();
-
-
                                 }
                             });
-
                 }
+
             }
         });
-
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data != null){
-            if (data.getData()!= null){
+
+        if (data != null) {
+            if (data.getData() != null) {
+                Uri uri = data.getData(); // filepath
+                FirebaseStorage storage = FirebaseStorage.getInstance();
+                long time = new Date().getTime();
+                StorageReference reference = storage.getReference().child("Profiles").child(time + "");
+                reference.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    String filePath = uri.toString();
+                                    HashMap<String, Object> obj = new HashMap<>();
+                                    obj.put("image", filePath);
+                                    database.getReference().child("users")
+                                            .child(FirebaseAuth.getInstance().getUid())
+                                            .updateChildren(obj).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+
+
                 binding.profileAva.setImageURI(data.getData());
                 selectedImage = data.getData();
             }

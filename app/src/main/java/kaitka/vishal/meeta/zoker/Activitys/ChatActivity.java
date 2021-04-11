@@ -39,32 +39,36 @@ import kaitka.vishal.meeta.zoker.Adapters.MessagesAdapter;
 import kaitka.vishal.meeta.zoker.Modells.Message;
 import kaitka.vishal.meeta.zoker.R;
 import kaitka.vishal.meeta.zoker.databinding.ActivityChatBinding;
-
 public class ChatActivity extends AppCompatActivity {
+
     ActivityChatBinding binding;
+
     MessagesAdapter adapter;
     ArrayList<Message> messages;
-    FirebaseDatabase database;
 
     String senderRoom, receiverRoom;
+
+    FirebaseDatabase database;
     FirebaseStorage storage;
+
     ProgressDialog dialog;
     String senderUid;
     String receiverUid;
-    private static final int pic_id = 123;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
+
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
 
         dialog = new ProgressDialog(this);
-        dialog.setMessage("Sending image...");
+        dialog.setMessage("Uploading image...");
         dialog.setCancelable(false);
 
         messages = new ArrayList<>();
@@ -310,7 +314,7 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
+        getMenuInflater().inflate(R.menu.top_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
