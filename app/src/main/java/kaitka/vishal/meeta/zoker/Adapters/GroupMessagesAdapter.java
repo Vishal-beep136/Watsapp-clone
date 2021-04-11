@@ -1,6 +1,6 @@
 package kaitka.vishal.meeta.zoker.Adapters;
 
-import android.annotation.SuppressLint;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;

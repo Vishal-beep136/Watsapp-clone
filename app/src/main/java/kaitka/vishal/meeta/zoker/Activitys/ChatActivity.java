@@ -3,6 +3,7 @@ package kaitka.vishal.meeta.zoker.Activitys;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.app.ProgressDialog;
@@ -35,6 +36,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
+import kaitka.vishal.meeta.zoker.Adapters.GroupMessagesAdapter;
 import kaitka.vishal.meeta.zoker.Adapters.MessagesAdapter;
 import kaitka.vishal.meeta.zoker.Modells.Message;
 import kaitka.vishal.meeta.zoker.R;
@@ -119,6 +121,9 @@ public class ChatActivity extends AppCompatActivity {
 
         adapter = new MessagesAdapter(this, messages, senderRoom, receiverRoom);
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+
         binding.recyclerView.setAdapter(adapter);
 
         database.getReference().child("chats")
@@ -131,6 +136,7 @@ public class ChatActivity extends AppCompatActivity {
                         for(DataSnapshot snapshot1 : snapshot.getChildren()) {
                             Message message = snapshot1.getValue(Message.class);
                             message.setMessageId(snapshot1.getKey());
+                            binding.recyclerView.smoothScrollToPosition(adapter.getItemCount());
                             messages.add(message);
                         }
 
